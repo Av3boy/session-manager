@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="choose_beast.css"/>
+
+    <!-- https://codepen.io/chriscoyier/pen/XwbNwX -->
+  </head>
+
+<body>
+  <div class="slider">
+  
+    <div class="header">
+      <a class="back" href="#slide-1">&lt; Back</a>
+      <a id="header" style="display: block; position: absolute; top: 10%; width: 100%; height: 1.5rem; text-align: center; margin: auto; pointer-events: none;">Header</a>
+    </div>
+    
+    <div id="popup-content" class="slides grid">
+
+      <div id="error-content" class="hidden" style="display: none;"> 
+        <p>Can't beastify this web page.</p><p>Try a different page.</p>
+      </div>
+
+      <div id="slide-1" class="slide">
+        <ul class="button beast">
+          <li>
+            <a href="#slide-2">2</a>
+          </li>
+        </ul>
+      </div>
+
+      <div id="slide-2" class="slide">
+        asd
+      </div>
+
+      <section class="buttons">
+        <button title="Opens selected bookmarks" onclick="OpenSelected()">Open bookmark(s)</button>
+        <button title="Creates a window for each folder and sub folder." onclick="OpenItems()">Open recursively</button>
+        <button title="Deleted selected bookmarks and folders." onclick="DeleteSelected()">Delete item(s)</button>
+      </section>
+
+    </div>
+  </div>
+
+  <script src="choose_beast.js"></script>
+
+</body>
+
+</html>
