@@ -14,7 +14,7 @@
   cursor: pointer;
 }
 
-.header {
+header {
   position: relative;
   background-color: gray;
 }
@@ -108,7 +108,7 @@ img {
   height: 100%;
 }
 
-.header > a {
+header > a {
   display: inline-flex;
   height: 1.5rem;
   text-decoration: none;
@@ -121,10 +121,10 @@ img {
   border-radius: 5%;
 }
 
-.header > a:active {
+header > a:active {
   top: 1px;
 }
 
-.header > a:focus {
+header > a:focus {
   background: #000;
 }

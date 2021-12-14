@@ -9,6 +9,12 @@ const hidePage =
 
 var previousSlide = 1;
 var currentSlide = 1;
+
+/**
+ * Selected items structure consists of folder objects which have their id's and children
+ * Child bookmarks are stored in an string array.
+ * @example [{folder: {id: 1, urls: ["", ""], folders: [{folder: {id: 2, urls: ["", ""]]}}]
+ */
 var selectedItems = [];
 
 /**
@@ -36,19 +42,16 @@ function ChangeSlide(slide) {
 function ClearSelectedItems() {
     selectedItems = [];
 }
-                  
+
+/**
+ * 
+ */
 function OpenSelected() {
-  // TODO: Handle selected folders
   console.log(selectedItems);
 
-  // TODO:
-  // change selected items from holding url strings to hold the actual objects
-  // this way we have more control over what needs to be done when something is selected
-  if (selectedItems.length > 0)
-    browser.windows.create({url: selectedItems});
-
-  else {
-    
+  // loop folder objects
+  for (let i = 0; i < selectedItems.length; i++) {
+    browser.windows.create({url: selectedItems[i].folder.urls});
   }
 
   // Clean up items
@@ -58,11 +61,25 @@ function OpenSelected() {
 /**
  * 
  */
-function OpenItems() {
+function OpenRecursive() {
   // TODO: Not implemented
+
+  function Loop(folder) {
+    for (let i = 0; i < folder.length; i++) {
+
+      if (folder[i].folders.length > 0)
+        Loop(folder);
+        
+    }
+  }
+
+  Loop(selectedItems);
+
+  ClearSelectedItems();
 }
 
 /**
+ * TODO: This needs to be fixed
  * Destructive operation. \n
  * Removes all the selected bookmarks and deletes all the folders recursively.
  */
@@ -72,7 +89,7 @@ function DeleteSelected() {
 
     // Remove a bookmark
     if (selectedItems[index].type === "bookmark")
-      browser.bookmarks.remove(selectedItems[index].id);
+      browser.bookmarks.remove(selectedItems[index].folder.urls.id); // TODO: fix this 
     
     // Recursively deletes a folder and all it's contents 
     else if (selectedItems[index].type === "folder")
@@ -83,6 +100,7 @@ function DeleteSelected() {
     
   }
 
+  ClearSelectedItems();
 }
 
 /**
@@ -106,17 +124,6 @@ function HasChildrenOfType(folder, type) {
  * the content script in the page.
  */
 function listenForClicks() {
-
-  // As with JSON, use the Fetch API & ES6
-  fetch('../.env')
-  .then(response => response.text())
-  .then(data => {
-  	
-    var integrity = data.split("=");
-
-  	var fontAwesome = document.getElementById("fontawesome");
-    fontAwesome.integrity = integrity;
-  });
 
   // Get the popup
   var popup = document.getElementById("popup-content");
@@ -151,8 +158,6 @@ function listenForClicks() {
           break;
 
         case "folder":
-          // TODO: folders with bookmarks,
-
           if (element.children.length <= 0)
             icon.classList.add("fas", "fa-folder"); // TODO: Handle empty folders
 
@@ -160,7 +165,7 @@ function listenForClicks() {
             icon.classList.add("fas", "fa-folder"); // TODO: folders with child folders
 
           else if (hasBookmarkChildren)
-          icon.classList.add("fa", "fas-folder");
+            icon.classList.add("fa", "fas-folder"); // TODO: folders with bookmarks,
 
           else
             icon.classList.add("fas", "fa-folder");
@@ -176,7 +181,14 @@ function listenForClicks() {
       // Checkbox
       const checkbox = document.createElement("input");
       checkbox.type = "checkbox";
-      checkbox.addEventListener("click", (e) => selectedItems.push(element));
+      checkbox.addEventListener("click", (e) => {   
+
+        if (element.type === "bookmark")
+          selectedItems.push({folder: selectedItems.length + 1, urls: [element.url]})
+
+        if (element.type === "folder") // TODO:
+          selectedItems.push({folder: selectedItems.length + 1, urls: []})
+      });
 
       // TODO: Handle empty folders, folders with child folders, folders with bookmarks, bookmarks
       // Construct a popup node
@@ -193,29 +205,34 @@ function listenForClicks() {
        * @param {event} e 
        */
       function folderClick(e) {
-    
-        // TODO:
-        // element has children -> element is directory
-        // element doesn't have children -> element.url 
-        // set header as folder name
+
+        header.textContent = element.title;
 
         /**
          * Recursively adds all the folders into the pool
-         * @param {*} folder 
+         * @param {*} folder
+         * @param {number} id
          */
-        function AddItemsToSelected(folder) {
+        function AddItemsToSelected(folder, id) {
+
+          var returnValue = {folder: id + 1, urls: [], folders: []};
+
           for (let index = 0; index < folder.children.length; index++) {
+
+            // TODO: Handle adding items to the selected items
+            
             if (folder.children[index].type === "bookmark")
-              selectedItems.push(folder.children[index]);
+              returnValue.urls.push(folder.children[index].url);
 
             if (folder.children[index].type === "folder")
-            AddItemsToSelected(folder);
+              returnValue.folders.push(AddItemsToSelected(folder, id + 1));
             
           }
+
+          return returnValue;
         }
         
-        AddItemsToSelected(element);
-
+        selectedItems.push(AddItemsToSelected(element, selectedItems.length));
         OpenSelected();
       }
 
@@ -234,7 +251,6 @@ function listenForClicks() {
       // Add the new item to the popup
       popup.children[0].appendChild(item);
     }
-    
   }
   
   /**
@@ -251,4 +267,32 @@ function listenForClicks() {
 
 }
 
+/**
+ * Add basic funtionality for all the buttons
+ */
+function Init() {
+  var buttonSelected = document.getElementById("buttonSelected");
+  buttonSelected.addEventListener("click", () => OpenSelected());
+
+  var buttonRecursive = document.getElementById("buttonRecursive");
+  buttonRecursive.addEventListener("click", () => OpenRecursive());
+
+  var buttonDelete = document.getElementById("buttonDelete");
+  buttonDelete.addEventListener("click", () => ShowModal('deleteConfirmation'));
+
+  SetModalFunctions();
+
+  // As with JSON, use the Fetch API & ES6
+  fetch('../.env')
+  .then(response => response.text())
+  .then(data => {
+  	
+    var integrity = data.split("=");
+
+  	var fontAwesome = document.getElementById("fontawesome");
+    fontAwesome.integrity = integrity;
+  });
+}
+
+Init();
 listenForClicks();
