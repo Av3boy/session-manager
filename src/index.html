@@ -5,7 +5,9 @@
 
     <title>Session Manager</title>
 
-    <link rel="stylesheet" href="choose_beast.css"/>
+    <link rel="stylesheet" href="popup/popup.css"/>
+    <link rel="stylesheet" href="modal/modal.css" />
+
     <link rel="stylesheet" id="fontawesome" href="https://use.fontawesome.com/releases/v5.15.4/css/all.css" integrity="" crossorigin="anonymous" />
 
     <!-- https://codepen.io/chriscoyier/pen/XwbNwX -->
@@ -13,6 +15,26 @@
 
   <body>
     <div class="slider">
+
+      <div id="deleteConfirmation" class="modal">
+
+        <!-- Modal content -->
+        <div class="modal-content">
+
+          <div class="modal-header">
+            <span class="close">&times;</span>
+            <h2>Destructive Operation</h2>
+          </div>
+
+          <div class="modal-body">
+            <p>Some text in the Modal Body</p>
+            <button>Delete</button>
+            <button>Cancel</button>
+          </div>
+
+        </div>
+
+      </div>
     
       <div class="header">
         <!-- TODO: Hide the back button when the active slide is the first slide -->
@@ -36,12 +58,12 @@
         <section class="buttons">
           <button title="Opens selected bookmarks" onclick="OpenSelected()">Open bookmark(s)</button>
           <button title="Creates a window for each folder and sub folder." onclick="OpenItems()">Open recursively</button>
-          <button title="Deleted selected bookmarks and folders." onclick="DeleteSelected()">Delete item(s)</button>
+          <button title="Deleted selected bookmarks and folders." onclick="ShowModal('deleteConfirmation')">Delete item(s)</button>
         </section>
 
         <section id="error-content" style="position: absolute; width: 250px; margin: 25px;" class="hidden">
           <h1>An error has occured</h1>
-          <pre style="white-space: normal;">
+          <pre id="error-content-container" style="white-space: normal;">
             Unable to load bookmarks and folders
           </pre>
         </section>
@@ -50,7 +72,8 @@
 
     </div>
 
-    <script src="choose_beast.js"></script>
+    <script src="popup/popup.js"></script>
+    <script src="modal/modal.js"></script>
 
   </body>
 

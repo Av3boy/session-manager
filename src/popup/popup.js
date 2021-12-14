@@ -63,33 +63,46 @@ function OpenItems() {
 }
 
 /**
- * 
+ * Destructive operation. \n
+ * Removes all the selected bookmarks and deletes all the folders recursively.
  */
 function DeleteSelected() {
-  // TODO: Not implemented
 
   for (let index = 0; index < selectedItems.length; index++) {
-    browser.bookmarks.remove(selectedItems[index].id);
+
+    // Remove a bookmark
+    if (selectedItems[index].type === "bookmark")
+      browser.bookmarks.remove(selectedItems[index].id);
+    
+    // Recursively deletes a folder and all it's contents 
+    else if (selectedItems[index].type === "folder")
+      browser.bookmarks.removeTree(selectedItems[index].id);
+
+    // else
+    // TODO: Handle type error
     
   }
 
-}
-
-function PreviousSlide() {
-  // TODO: Not implemented
-}
-
-function HasChildFolders(folder) {
-  for (let index = 0; index < folder.children.length; index++) {
-    
-    if (folder.children[index].type === "folder")
-      return true;
-    
-  }
 }
 
 /**
- * Listen for clicks on the buttons, and send the appropriate message to
+ * Looks for child of the given type in direct children 
+ * @param {bookmarks.BookmarkTreeNode} folder 
+ * @param {string} type 
+ * @returns 
+ */
+function HasChildrenOfType(folder, type) {
+  for (let index = 0; index < folder.children.length; index++) {
+    
+    if (folder.children[index].type === type)
+      return true;
+  }
+
+  return false;
+}
+
+/**
+ * Listens for clicks on the buttons, and send the appropriate message to
  * the content script in the page.
  */
 function listenForClicks() {
@@ -122,7 +135,8 @@ function listenForClicks() {
       const element = bookmarkItems[0].children[i];
       console.log(element);
 
-      var hasFolderChildren = HasChildFolders(element);
+      var hasFolderChildren = HasChildrenOfType(element, "folder");
+      var hasBookmarkChildren = HasChildrenOfType(element, "bookmark");
 
       // New poup item
       const item = document.createElement("div");
@@ -142,8 +156,11 @@ function listenForClicks() {
           if (element.children.length <= 0)
             icon.classList.add("fas", "fa-folder"); // TODO: Handle empty folders
 
-          if (hasFolderChildren)
+          else if (hasFolderChildren)
             icon.classList.add("fas", "fa-folder"); // TODO: folders with child folders
+
+          else if (hasBookmarkChildren)
+          icon.classList.add("fa", "fas-folder");
 
           else
             icon.classList.add("fas", "fa-folder");
@@ -170,11 +187,9 @@ function listenForClicks() {
       var textnode = document.createTextNode(element.title);
       node.appendChild(textnode);
 
-      // TODO:
-      // On click -> item has child folders
-
       /**
-       * Open all the child bookmarks
+       * Opens all the direct child bookmarks.
+       * If a folder has no child bookmarks, shows child folders in new slide.
        * @param {event} e 
        */
       function folderClick(e) {
@@ -191,7 +206,7 @@ function listenForClicks() {
         function AddItemsToSelected(folder) {
           for (let index = 0; index < folder.children.length; index++) {
             if (folder.children[index].type === "bookmark")
-              selectedItems.push(folder.children[index].url);
+              selectedItems.push(folder.children[index]);
 
             if (folder.children[index].type === "folder")
             AddItemsToSelected(folder);
@@ -204,20 +219,13 @@ function listenForClicks() {
         OpenSelected();
       }
 
-      /**
-       * Open the selected bookmark
-       * @param {event} e 
-       */
-      function bookmarkClick(e) {
-        browser.windows.create({url: element.url});
-      }
-
       // Add the functionality for the button
       if (element.type === "folder")
         node.addEventListener("click", folderClick);
     
+      // Opens selected bookmark in a new tab.
       if (element.type === "bookmark")
-        node.addEventListener("click", bookmarkClick);
+        node.addEventListener("click", (e) => browser.windows.create({url: element.url}));
 
       item.appendChild(icon);
       item.appendChild(checkbox);
@@ -229,8 +237,13 @@ function listenForClicks() {
     
   }
   
+  /**
+   * 
+   * @param {string} error Error message containing information about the error that has occured
+   */
   function onRejected(error) {
-    console.log(`An error: ${error}`);
+    var container = document.getElementById("error-content-container");
+    container.textContent = error;
   }
   
   var bookmarkTree = browser.bookmarks.getTree();

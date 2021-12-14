@@ -6,12 +6,12 @@ https://github.com/mdn/webextensions-examples/tree/master/beastify
 ## What it does ##
 
 Clicking a folder opens all the direct child bookmarks it has.
-If however the bookmark has no children, the folder shows it's child folders.
+If however the folder has no child bookmarks, the folder shows it's child folders.
 
 Clicking a bookmark opens that bookmark in a new tab.
 
-The "Open bookmark(s)" button opens all the selected bookmarks in a new window.  
-The "Open recursively" button opens all the bookmarks for each window in their own windows.  
+The "Open selected(s)" button opens all the selected bookmarks in a new window. Opens selected folders' direct child bookmarks.   
+The "Open recursively" button opens all the bookmarks in a new window per folder.  
 The "Delete item(s)" is an destructive operation. It will remove all the selected bookmarks and deletes all the folders recursively.
 
 Note that:
