@@ -2,6 +2,9 @@
   color: black;
 }
 
+.hidden {
+  display: none;
+}
 
 .page-choice {
   width: 100%;

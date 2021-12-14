@@ -7,12 +7,43 @@ const hidePage =
   display: none;
 }`;
 
+var previousSlide = 1;
+var currentSlide = 1;
 var selectedItems = [];
+
+/**
+ * 
+ * @param {number} slide 
+ */
+function ChangeSlide(slide) {
+
+  // Handle slide change
+  previousSlide = currentSlide;
+  currentSlide = slide;
+
+  var back = document.getElementById("back");
+  back.href = "#slide-" + currentSlide;
+
+  if (currentSlide === 1) 
+    back.classList.add("hidden");
+  else 
+    back.classList.remove("hidden");
+}
+
+/**
+ * Empties the selected items.
+ */
+function ClearSelectedItems() {
+    selectedItems = [];
+}
                   
 function OpenSelected() {
   // TODO: Handle selected folders
   console.log(selectedItems);
 
+  // TODO:
+  // change selected items from holding url strings to hold the actual objects
+  // this way we have more control over what needs to be done when something is selected
   if (selectedItems.length > 0)
     browser.windows.create({url: selectedItems});
 
@@ -20,15 +51,31 @@ function OpenSelected() {
     
   }
 
-  // Clear the selected items
-  selectedItems = [];
+  // Clean up items
+  ClearSelectedItems();
 }
 
+/**
+ * 
+ */
 function OpenItems() {
   // TODO: Not implemented
 }
 
+/**
+ * 
+ */
 function DeleteSelected() {
+  // TODO: Not implemented
+
+  for (let index = 0; index < selectedItems.length; index++) {
+    browser.bookmarks.remove(selectedItems[index].id);
+    
+  }
+
+}
+
+function PreviousSlide() {
   // TODO: Not implemented
 }
 
@@ -47,14 +94,26 @@ function HasChildFolders(folder) {
  */
 function listenForClicks() {
 
+  // As with JSON, use the Fetch API & ES6
+  fetch('../.env')
+  .then(response => response.text())
+  .then(data => {
+  	
+    var integrity = data.split("=");
+
+  	var fontAwesome = document.getElementById("fontawesome");
+    fontAwesome.integrity = integrity;
+  });
+
   // Get the popup
-  var popup = document.getElementById("slide-1");
+  var popup = document.getElementById("popup-content");
+  console.log(document);
   
   // Get the bookmark list
   function getTree(bookmarkItems) {
 
     var header = document.getElementById("header");
-    header.textContent = "Root";
+    header.textContent = "Current Folder: Root";
 
     // NOTE: first is 0 index which is the root node
     // Add all the bookmark folders
@@ -177,74 +236,6 @@ function listenForClicks() {
   var bookmarkTree = browser.bookmarks.getTree();
   bookmarkTree.then(getTree, onRejected);
 
-  /*document.addEventListener("click", (e) => {
-
-    /**
-     * Given the name of a beast, get the URL to the corresponding image.
-     *
-    function beastNameToURL(beastName) {
-      switch (beastName) {
-        case "Frog":
-          return browser.extension.getURL("beasts/frog.jpg");
-        case "Snake":
-          return browser.extension.getURL("beasts/snake.jpg");
-        case "Turtle":
-          return browser.extension.getURL("beasts/turtle.jpg");
-      }
-    }
-
-    /**
-     * Insert the page-hiding CSS into the active tab,
-     * then get the beast URL and
-     * send a "beastify" message to the content script in the active tab.
-     *
-    function beastify(tabs) {
-      browser.tabs.insertCSS({code: hidePage}).then(() => {
-        let url = beastNameToURL(e.target.textContent);
-        browser.tabs.sendMessage(tabs[0].id, {
-          command: "beastify",
-          beastURL: url
-        });
-      });
-    }
-
-    /**
-     * Remove the page-hiding CSS from the active tab,
-     * send a "reset" message to the content script in the active tab.
-     *
-    function reset(tabs) {
-      browser.tabs.removeCSS({code: hidePage}).then(() => {
-        browser.tabs.sendMessage(tabs[0].id, {
-          command: "reset",
-        });
-      });
-    }
-
-    /**
-     * Just log the error to the console.
-     *
-    function reportError(error) {
-      console.error(`Could not beastify: ${error}`);
-    }
-
-    if (e.target.textContent === "test")
-    console.log("testi");
-
-    /**
-     * Get the active tab,
-     * then call "beastify()" or "reset()" as appropriate.
-     *
-    if (e.target.classList.contains("beast")) {
-      browser.tabs.query({active: true, currentWindow: true})
-        .then(beastify)
-        .catch(reportError);
-    }
-    else if (e.target.classList.contains("reset")) {
-      browser.tabs.query({active: true, currentWindow: true})
-        .then(reset)
-        .catch(reportError);
-    }
-  });*/
 }
 
 /**

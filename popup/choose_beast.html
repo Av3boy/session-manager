@@ -1,49 +1,57 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
   <head>
     <meta charset="utf-8">
+
+    <title>Session Manager</title>
+
     <link rel="stylesheet" href="choose_beast.css"/>
+    <link rel="stylesheet" id="fontawesome" href="https://use.fontawesome.com/releases/v5.15.4/css/all.css" integrity="" crossorigin="anonymous" />
 
     <!-- https://codepen.io/chriscoyier/pen/XwbNwX -->
   </head>
 
-<body>
-  <div class="slider">
-  
-    <div class="header">
-      <a class="back" href="#slide-1">&lt; Back</a>
-      <a id="header" style="display: block; position: absolute; top: 10%; width: 100%; height: 1.5rem; text-align: center; margin: auto; pointer-events: none;">Header</a>
-    </div>
+  <body>
+    <div class="slider">
     
-    <div id="popup-content" class="slides grid">
-
-      <div id="error-content" class="hidden" style="display: none;"> 
-        <p>Can't beastify this web page.</p><p>Try a different page.</p>
+      <div class="header">
+        <!-- TODO: Hide the back button when the active slide is the first slide -->
+        <a id="back" class="back" href="#slide-1">&lt; Back</a>
+        <h1 id="header" style="display: block; position: absolute; top: 10%; width: 100%; height: 1.5rem; text-align: center; margin: auto; pointer-events: none; font-size: 1em;">Header</h1>
       </div>
 
-      <div id="slide-1" class="slide">
-        <ul class="button beast">
-          <li>
-            <a href="#slide-2">2</a>
-          </li>
-        </ul>
-      </div>
+      <div id="popup-content" class="slides grid">
 
-      <div id="slide-2" class="slide">
-        asd
-      </div>
+        <div id="slide-1" class="slide">
+          
+        </div>
 
-      <section class="buttons">
-        <button title="Opens selected bookmarks" onclick="OpenSelected()">Open bookmark(s)</button>
-        <button title="Creates a window for each folder and sub folder." onclick="OpenItems()">Open recursively</button>
-        <button title="Deleted selected bookmarks and folders." onclick="DeleteSelected()">Delete item(s)</button>
-      </section>
+        <!--
+          New slides can be created as child slides.
+          NOTE: When creating new slides remember to set the link of the back button
+        <div id="slide-2" class="slide"></div>
+        <div id="slide-3" class="slide"></div>
+        -->
+
+        <section class="buttons">
+          <button title="Opens selected bookmarks" onclick="OpenSelected()">Open bookmark(s)</button>
+          <button title="Creates a window for each folder and sub folder." onclick="OpenItems()">Open recursively</button>
+          <button title="Deleted selected bookmarks and folders." onclick="DeleteSelected()">Delete item(s)</button>
+        </section>
+
+        <section id="error-content" style="position: absolute; width: 250px; margin: 25px;" class="hidden">
+          <h1>An error has occured</h1>
+          <pre style="white-space: normal;">
+            Unable to load bookmarks and folders
+          </pre>
+        </section>
+
+      </div>
 
     </div>
-  </div>
 
-  <script src="choose_beast.js"></script>
+    <script src="choose_beast.js"></script>
 
-</body>
+  </body>
 
 </html>

@@ -1,28 +1,18 @@
-# beastify
+# session-manager
 
 This extension has been built on top of this example
 https://github.com/mdn/webextensions-examples/tree/master/beastify
 
 ## What it does ##
 
-The extension includes:
+Clicking a folder opens all the direct child bookmarks it has.
+If however the bookmark has no children, the folder shows it's child folders.
 
-* a browser action with a popup including HTML, CSS, and JS
-* a content script
-* three images, each of a different beast, packaged as web accessible resources
+Clicking a bookmark opens that bookmark in a new tab.
 
-When the user clicks the browser action button, the popup is shown, enabling
-the user to choose one of three beasts.
-
-When it is shown, the popup injects a content script into the current page.
-
-When the user chooses a beast, the extension sends the content script a message containing
-the name of the chosen beast.
-
-When the content script receives this message, it replaces the current page
-content with an image of the chosen beast.
-
-When the user clicks the reset button, the page reloads, and reverts to its original form.
+The "Open bookmark(s)" button opens all the selected bookmarks in a new window.  
+The "Open recursively" button opens all the bookmarks for each window in their own windows.  
+The "Delete item(s)" is an destructive operation. It will remove all the selected bookmarks and deletes all the folders recursively.
 
 Note that:
 
