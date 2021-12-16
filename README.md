@@ -3,6 +3,9 @@
 This extension has been built on top of this example
 https://github.com/mdn/webextensions-examples/tree/master/beastify
 
+CICD can be implemented using the signing api
+https://addons-server.readthedocs.io/en/latest/topics/api/signing.html
+
 ## What it does ##
 
 Clicking a folder opens all the direct child bookmarks it has.
