@@ -3,7 +3,7 @@
   "description": "Adds a browser action icon to the toolbar. Allows uers to more easily managed work sessions and bookmarks",
   "manifest_version": 2,
   "name": "Session Manager",
-  "version": "1.0",
+  "version": "1.0.2",
   "homepage_url": "https://github.com/Av3boy/session-manager",
   "icons": {
     "48": "icons/beasts-48.png"

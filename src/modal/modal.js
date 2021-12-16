@@ -19,12 +19,3 @@ function HideModal(id) {
   var modal = document.getElementById(id);
   modal.style.display = "none";
 }
-
-function SetModalFunctions() {
-  var modalDelete = document.getElementById("modalDelete");
-  modalDelete.addEventListener("click", (e) => DeleteSelected());
-
-  var modalCancel = document.getElementById("modalCancel");
-  modalCancel.addEventListener("click", (e) => HideModal("deleteConfirmation"));
-
-}

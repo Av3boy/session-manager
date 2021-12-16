@@ -51,12 +51,13 @@ function OpenSelected() {
 
   // loop folder objects
   for (let i = 0; i < selectedItems.length; i++) {
-    browser.windows.create({url: selectedItems[i].folder.urls});
+      browser.windows.create({url: selectedItems[i].urls});
+
   }
 
   // Clean up items
   ClearSelectedItems();
-}
+} 
 
 /**
  * 
@@ -165,7 +166,7 @@ function listenForClicks() {
             icon.classList.add("fas", "fa-folder"); // TODO: folders with child folders
 
           else if (hasBookmarkChildren)
-            icon.classList.add("fa", "fas-folder"); // TODO: folders with bookmarks,
+            icon.classList.add("fas", "fas-folder"); // TODO: folders with bookmarks,
 
           else
             icon.classList.add("fas", "fa-folder");
@@ -280,7 +281,11 @@ function Init() {
   var buttonDelete = document.getElementById("buttonDelete");
   buttonDelete.addEventListener("click", () => ShowModal('deleteConfirmation'));
 
-  SetModalFunctions();
+  var modalDelete = document.getElementById("modalDelete");
+  modalDelete.addEventListener("click", (e) => DeleteSelected());
+
+  var modalCancel = document.getElementById("modalCancel");
+  modalCancel.addEventListener("click", (e) => HideModal("deleteConfirmation"));
 
   // As with JSON, use the Fetch API & ES6
   fetch('../.env')
