@@ -13,7 +13,10 @@ var currentSlide = 1;
 /**
  * Selected items structure consists of folder objects which have their id's and children
  * Child bookmarks are stored in an string array.
- * @example [{folder: {id: 1, urls: ["", ""], folders: [{folder: {id: 2, urls: ["", ""]]}}]
+ * @example [
+ *  {id: 1, urls: ["", ""], folders: [{folder: {id: 2, urls: ["", ""]] },
+ *  {id: 3, urls: ["", ""], folders: [{folder: {id: 4, urls: ["", ""]] }
+ * ]
  */
 var selectedItems = [];
 
@@ -32,8 +35,11 @@ function ChangeSlide(slide) {
 
   if (currentSlide === 1) 
     back.classList.add("hidden");
-  else 
+  else {
+    document.getElementById('slide-' + currentSlide).click();
     back.classList.remove("hidden");
+  }
+
 }
 
 /**
@@ -44,15 +50,21 @@ function ClearSelectedItems() {
 }
 
 /**
+ * Opens all the direct child bookmarks.
+ * If a folder has no child bookmarks, shows child folders in new slide.
  * 
+ * For more information, see {@link folderClick()}
  */
 function OpenSelected() {
   console.log(selectedItems);
 
+  if (selectedItems[0].folders.length > 0)
+    ChangeSlide(2); // TODO: ?
+
   // loop folder objects
   for (let i = 0; i < selectedItems.length; i++) {
+      console.log(selectedItems[i].urls);
       browser.windows.create({url: selectedItems[i].urls});
-
   }
 
   // Clean up items
@@ -60,23 +72,29 @@ function OpenSelected() {
 } 
 
 /**
- * 
+ * Opens all the bookmarks in a new window per folder.  
  */
 function OpenRecursive() {
-  // TODO: Not implemented
 
+  /**
+   * Opens all the child bookmarks of the looping folder and continues to it's possible child folders
+   * @param {*} folder 
+   */
   function Loop(folder) {
     for (let i = 0; i < folder.length; i++) {
 
+      // Open bookmarks in this folder
+      browser.windows.create({url: folder[i].urls});
+
+      // Loop the current folder's children
       if (folder[i].folders.length > 0)
-        Loop(folder);
+        Loop(folder[i].folders);
         
     }
   }
 
-  Loop(selectedItems);
-
-  ClearSelectedItems();
+  Loop(selectedItems);  // Start looping from the root of the selected items
+  ClearSelectedItems(); // Operation finished, clear the selected items
 }
 
 /**
@@ -90,7 +108,7 @@ function DeleteSelected() {
 
     // Remove a bookmark
     if (selectedItems[index].type === "bookmark")
-      browser.bookmarks.remove(selectedItems[index].folder.urls.id); // TODO: fix this 
+      browser.bookmarks.remove(selectedItems[index].folder.urls.id); // TODO: fix this by adding an id to the url's  
     
     // Recursively deletes a folder and all it's contents 
     else if (selectedItems[index].type === "folder")
@@ -101,7 +119,7 @@ function DeleteSelected() {
     
   }
 
-  ClearSelectedItems();
+  ClearSelectedItems(); // Operation finished, clear the selected items
 }
 
 /**
@@ -118,6 +136,30 @@ function HasChildrenOfType(folder, type) {
   }
 
   return false;
+}
+
+/**
+ * Check for a valid url
+ * For more info on url validity
+ * @see https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API/windows/create
+ * @see https://developer.mozilla.org/en-US/docs/Web/API/URL
+ * @param {string} url 
+ * @returns 
+ */
+function IsValidURL(url) {
+  try {
+    // creating a URL object from the given url stirng will throw an error
+    const check = new URL(url);
+
+    // Make sure the url is not a firefox configuration page
+    if (check.protocol === "about:")
+      return false;
+
+    return true;
+  }
+  catch (error) {
+    return false;
+  }
 }
 
 /**
@@ -166,7 +208,7 @@ function listenForClicks() {
             icon.classList.add("fas", "fa-folder"); // TODO: folders with child folders
 
           else if (hasBookmarkChildren)
-            icon.classList.add("fas", "fas-folder"); // TODO: folders with bookmarks,
+            icon.classList.add("fas", "fa-folder"); // TODO: folders with bookmarks,
 
           else
             icon.classList.add("fas", "fa-folder");
@@ -182,20 +224,23 @@ function listenForClicks() {
       // Checkbox
       const checkbox = document.createElement("input");
       checkbox.type = "checkbox";
-      checkbox.addEventListener("click", (e) => {   
+      checkbox.addEventListener("click", (e) => {
 
-        if (element.type === "bookmark")
-          selectedItems.push({folder: selectedItems.length + 1, urls: [element.url]})
+        var returnValue = {folder: selectedItems.length + 1, urls: [], folders: []}; 
+
+        if (element.type === "bookmark" && IsValidURL(element.url))
+        returnValue.urls.push(element.url)
 
         if (element.type === "folder") // TODO:
-          selectedItems.push({folder: selectedItems.length + 1, urls: []})
+          returnValue.folders.push(element)
+
+        selectedItems.push(returnValue);
       });
 
       // TODO: Handle empty folders, folders with child folders, folders with bookmarks, bookmarks
       // Construct a popup node
       const node = document.createElement("a");    
       node.href = "#slide-2";
-      node.classList.add("button", "beast");
 
       var textnode = document.createTextNode(element.title);
       node.appendChild(textnode);
@@ -222,32 +267,39 @@ function listenForClicks() {
 
             // TODO: Handle adding items to the selected items
             
-            if (folder.children[index].type === "bookmark")
+            if (folder.children[index].type === "bookmark" && IsValidURL(folder.children[index].url))
               returnValue.urls.push(folder.children[index].url);
 
-            if (folder.children[index].type === "folder")
-              returnValue.folders.push(AddItemsToSelected(folder, id + 1));
+            if (folder.children[index].type === "folder") {}
+              //returnValue.folders.push(AddItemsToSelected(folder, id + 1));
             
           }
 
           return returnValue;
         }
         
+        // Recursively add all the child folders
         selectedItems.push(AddItemsToSelected(element, selectedItems.length));
         OpenSelected();
       }
 
-      // Add the functionality for the button
-      if (element.type === "folder")
-        node.addEventListener("click", folderClick);
-    
-      // Opens selected bookmark in a new tab.
-      if (element.type === "bookmark")
-        node.addEventListener("click", (e) => browser.windows.create({url: element.url}));
-
       item.appendChild(icon);
       item.appendChild(checkbox);
       item.appendChild(node);
+
+      // Add the functionality for the button
+      if (element.type === "folder") {
+        node.addEventListener("click", folderClick);
+
+        const arrow = document.createElement("a");
+        arrow.classList.add("fas", "fa-arrow-right");
+        arrow.style.float = "right";
+
+        item.appendChild(arrow);
+      }    
+      // Opens selected bookmark in a new tab.
+      if (element.type === "bookmark" && IsValidURL(element.url))
+        node.addEventListener("click", (e) => browser.windows.create({url: element.url}));
     
       // Add the new item to the popup
       popup.children[0].appendChild(item);
