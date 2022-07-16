@@ -1,6 +1,8 @@
-# session-manager
+# Session Manager
 
-This extension has been built on top of this example
+## Introdution
+
+This firefox extension has been built on top of this example
 https://github.com/mdn/webextensions-examples/tree/master/beastify
 
 CICD can be implemented using the signing api
